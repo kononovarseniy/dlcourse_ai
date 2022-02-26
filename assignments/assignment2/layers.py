@@ -1,6 +1,23 @@
 import numpy as np
 
 
+def softmax(predictions):
+    '''
+    Computes probabilities from scores
+
+    Arguments:
+      predictions, np array, shape is either (N) or (batch_size, N) -
+        classifier output
+
+    Returns:
+      probs, np array of the same shape as predictions - 
+        probability for every class, 0..1
+    '''
+    exps = np.exp(predictions - np.max(predictions, axis=-1, keepdims=True))
+    denom = np.sum(exps, axis=-1, keepdims=True)
+    return exps / denom
+
+
 def l2_regularization(W, reg_strength):
     """
     Computes L2 regularization loss on weights and its gradient
@@ -13,9 +30,9 @@ def l2_regularization(W, reg_strength):
       loss, single value - l2 regularization loss
       gradient, np.array same shape as W - gradient of weight by l2 loss
     """
-    # TODO: Copy from the previous assignment
-    raise Exception("Not implemented!")
-    return loss, grad
+
+    loss = reg_strength * np.sum(np.square(W))
+    return loss, reg_strength * 2 * W
 
 
 def softmax_with_cross_entropy(preds, target_index):
@@ -33,8 +50,14 @@ def softmax_with_cross_entropy(preds, target_index):
       loss, single value - cross-entropy loss
       dprediction, np array same shape as predictions - gradient of predictions by loss value
     """
-    # TODO: Copy from the previous assignment
-    raise Exception("Not implemented!")
+    indices = target_index if preds.ndim == 1 else (np.arange(preds.shape[0]).reshape(target_index.shape), target_index)
+
+    probs = softmax(preds)
+    loss = np.mean(-np.log(probs[indices]))
+    
+    d_preds = probs.copy()
+    d_preds[indices] -= 1
+    d_preds /= probs.shape[0]
 
     return loss, d_preds
 
