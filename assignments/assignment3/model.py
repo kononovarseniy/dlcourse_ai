@@ -31,8 +31,20 @@ class ConvNet:
         conv1_channels, int - number of filters in the 1st conv layer
         conv2_channels, int - number of filters in the 2nd conv layer
         """
-        # TODO Create necessary layers
-        self.layers = ()
+        w, h, c = input_shape
+
+        self.layers = (
+            ConvolutionalLayer(c, conv1_channels, 3, 1),
+            ReLULayer(),
+            MaxPoolingLayer(4, 4),
+
+            ConvolutionalLayer(conv1_channels, conv2_channels, 3, 1),
+            ReLULayer(),
+            MaxPoolingLayer(4, 4),
+
+            Flattener(),
+            FullyConnectedLayer(h * w * conv2_channels // 4 ** 4, n_output_classes)
+        )
 
     def compute_loss_and_gradients(self, X, y):
         """
